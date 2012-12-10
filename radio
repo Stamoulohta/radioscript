@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# vim: set fileencoding=utf-8 :
+#======================================================================================================================#
+#
+#   Copyright © 2012 George A Stamoulis (g.a.stamoulis@gmail.com)
+#
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#======================================================================================================================#
+#
+# Bash script for listening to internet radio stations via the terminal.
+# It is depending on vlc (vlc -I dummy) and cut.
+#
+# Insert any station you like in the stations array.
+# Separate the name and the address by a whitespace and enclose in double quotes.
+# Do not forget to separate the entries with newlines as well.
+#
+# Enjoy ;)
+#
+#======================================================================================================================#
+
+radiopid="$HOME/temp/radio.pid" #XXX User must create/change this if not present.
+
+# Killing the process without hassle!
+if [ "$1" == "kill" ]; then
+    if [ -e "$radiopid" ]; then
+        kill $(cat "$radiopid") &> /dev/null
+        if [ $? -gt 0 ]; then
+            echo "Invalid pid. Please kill manyally." 1>&2
+            exit 2
+        fi
+        rm -f "$radiopid"
+        exit 0
+    else
+        echo "Unable to retrieve pid. Please kill manually." 1>&2
+        exit 2
+    fi 
+fi
+
+declare -a stations=(
+"jazz http://smoothandjazz.com/listen.asx"
+"kosmos http://tvradio.ert.gr/radio/liveradio/asx/kosmos.asx"
+"deytero http://tvradio.ert.gr/radio/liveradio/asx/deytero.asx"
+"era1 http://tvradio.ert.gr/radio/liveradio/asx/net.asx"
+"era3 http://tvradio.ert.gr/radio/liveradio/asx/trito.asx"
+"era5 http://tvradio.ert.gr/radio/liveradio/asx/era5.asx"
+"alpha http://mfile.akamai.com/70831/live/reflector:51277.asx"
+"ant1 http://ant1.live24.gr/ant1"
+"atlantis http://eco.caststream.net:8046/listen.pls"
+"best http://best.live24.gr/best1222"
+"derti mms://derti.live24.gr/derty1000"
+"galaxy mms://galaxy.live24.gr/galaxy9292"
+"kiss mms://kissfm.live24.gr/kiss2111"
+"love mms://loveradio.live24.gr/loveradio-1000"
+"melodia http://eco.onestreaming.com:8129/listen.pls"
+"nitro_Radio http://nitro.live24.gr/nitro4555"
+"rock_fm http://91.132.6.21:8003/listen.pls"
+"skai http://a240.l827440239.c8274.g.lm.akamaistream.net/D/240/8274/v0001/reflector:40239"
+"enleyko mms://enleuko.live24.gr/enleuko877"
+"sto_kokkino http://stokokkino.gr:8000/stream"
+"epikoinonia http://s2.onweb.gr:8608/listen.pls"
+)
+
+if [ $# -lt 1 ]; then # If user doesn't provide a station, we will ask him to choose.
+    for i in $(seq 0 ${#stations[@]});
+    do
+        names[$i]=$(echo ${stations[$i]} | cut -d' ' -f1)
+    done
+    PS3="Select station. " #PS3 is the prompt that select uses. We set it to something more relevant than "#?".
+    select choise in ${names[@]};
+    do
+        if [[ -n $choise ]]; then
+            station=$choise
+            break
+        else
+            echo "Invalid input."
+        fi
+    done
+elif [ $# -gt 1 ]; then # If user provides more than 1 argument, we exit gracefully!
+    echo -e "You can listen only one radio station at a time.\nKeep that in mind!" 1>&2
+    exit 1
+else # Finally, user has provided one station at the command line and we assign it to our variable.
+    station=$1
+fi
+
+# We get the address for the requested station.
+for entry in "${stations[@]}"
+do
+    name=$(echo $entry | cut -d' ' -f1)
+    if [ $name == $station ]; then
+        address=$(echo $entry | cut -d' ' -f2)
+        break
+    fi
+done
+
+# We assert that we got a valid address from our list and if not we exit.
+if [[ -n $address ]]; then
+    [ -e "$radiopid" ] && kill $(cat "$radiopid")  &> /dev/null # We kill previous instance if exists.
+    eval "vlc -I dummy --quiet $address 0<&- &> /dev/null &"
+    echo $! > "$radiopid"
+    exit 0
+else
+    echo "Unknown station ($station). Please try again." 1>&2
+    exit 2
+fi
+
+#======================================================================================================================#
