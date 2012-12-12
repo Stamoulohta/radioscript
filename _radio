@@ -1,0 +1,28 @@
+# ex: ts=4 sw=4 et filetype=sh
+#
+# radio completion  
+
+stations=$HOME/.stations    #          ---XXX---
+
+_radio()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -h|--help)
+            return
+            ;;
+        -a|--address)
+            return
+            ;;
+        -f|--file):
+            _filedir
+            return
+            ;;
+    esac
+
+    COMPREPLY=( $( compgen -W 'kill killall $(while read entry; do echo $entry | cut -d" " -f1; done < $stations)' -- "$cur" ) )
+} &&
+complete -F _radio radio
+

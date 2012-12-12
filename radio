@@ -23,64 +23,56 @@
 # Bash script for listening to internet radio stations via the terminal.
 # It is depending on vlc (vlc -I dummy) and cut.
 #
-# Insert any station you like in the stations array.
-# Separate the name and the address by a whitespace and enclose in double quotes.
-# Do not forget to separate the entries with newlines as well.
+# Insert any station you like in the stations file.
+# Separate the name and the address by a whitespace and
+# don't forget to separate the entries with newlines as well.
 #
 # Enjoy ;)
 #
 #======================================================================================================================#
 
-radiopid="$HOME/temp/radio.pid" #XXX User must create/change this if not present.
+tempdir="$HOME/temp" #                    ---XXX---
+radiopid="$tempdir/radio.pid"
+stations="$HOME/.stations" #              ---XXX---
+[[ ! -d $tempdir ]] && mkdir $tempdir
 
 # Killing the process without hassle!
 if [ "$1" == "kill" ]; then
     if [ -e "$radiopid" ]; then
         kill $(cat "$radiopid") &> /dev/null
         if [ $? -gt 0 ]; then
-            echo "Invalid pid. Please kill manyally." 1>&2
+            echo "Invalid pid. Please kill manyally (or use \"killall\")." 1>&2
             exit 2
         fi
         rm -f "$radiopid"
         exit 0
     else
-        echo "Unable to retrieve pid. Please kill manually." 1>&2
+        echo "Unable to retrieve pid. Please kill manually (or use \"killall\")." 1>&2
         exit 2
     fi 
+elif [ "$1" == "killall" ]; then
+        e=0
+    for pid in $(ps -eo pid,cmd | grep "vlc -I dummy" | grep -v "grep" | sed s'/^\s*//'g | cut -d' ' -f1); do
+        kill $pid
+        let e+=$?
+    done
+    if [ $pid ]; then
+        echo "Some were found."
+        exit $e
+    else
+        echo "Nothing found.." 1>&2
+        exit 2
+    fi
 fi
 
-declare -a stations=(
-"jazz http://smoothandjazz.com/listen.asx"
-"kosmos http://tvradio.ert.gr/radio/liveradio/asx/kosmos.asx"
-"deytero http://tvradio.ert.gr/radio/liveradio/asx/deytero.asx"
-"era1 http://tvradio.ert.gr/radio/liveradio/asx/net.asx"
-"era3 http://tvradio.ert.gr/radio/liveradio/asx/trito.asx"
-"era5 http://tvradio.ert.gr/radio/liveradio/asx/era5.asx"
-"alpha http://mfile.akamai.com/70831/live/reflector:51277.asx"
-"ant1 http://ant1.live24.gr/ant1"
-"atlantis http://eco.caststream.net:8046/listen.pls"
-"best http://best.live24.gr/best1222"
-"derti mms://derti.live24.gr/derty1000"
-"galaxy mms://galaxy.live24.gr/galaxy9292"
-"kiss mms://kissfm.live24.gr/kiss2111"
-"love mms://loveradio.live24.gr/loveradio-1000"
-"melodia http://eco.onestreaming.com:8129/listen.pls"
-"nitro_Radio http://nitro.live24.gr/nitro4555"
-"rock_fm http://91.132.6.21:8003/listen.pls"
-"skai http://a240.l827440239.c8274.g.lm.akamaistream.net/D/240/8274/v0001/reflector:40239"
-"enleyko mms://enleuko.live24.gr/enleuko877"
-"sto_kokkino http://stokokkino.gr:8000/stream"
-"epikoinonia http://s2.onweb.gr:8608/listen.pls"
-)
-
 if [ $# -lt 1 ]; then # If user doesn't provide a station, we will ask him to choose.
-    for i in $(seq 0 ${#stations[@]});
-    do
-        names[$i]=$(echo ${stations[$i]} | cut -d' ' -f1)
-    done
+    i=0
+    while read line; do
+        names[$i]=$(echo $line | cut -d' ' -f1)
+    done < $stations
+
     PS3="Select station. " #PS3 is the prompt that select uses. We set it to something more relevant than "#?".
-    select choise in ${names[@]};
-    do
+    select choise in ${names[@]}; do
         if [[ -n $choise ]]; then
             station=$choise
             break
@@ -96,14 +88,13 @@ else # Finally, user has provided one station at the command line and we assign 
 fi
 
 # We get the address for the requested station.
-for entry in "${stations[@]}"
-do
-    name=$(echo $entry | cut -d' ' -f1)
+while read line; do
+    name=$(echo $line | cut -d' ' -f1)
     if [ $name == $station ]; then
-        address=$(echo $entry | cut -d' ' -f2)
+        address=$(echo $line | cut -d' ' -f2)
         break
     fi
-done
+done < $stations
 
 # We assert that we got a valid address from our list and if not we exit.
 if [[ -n $address ]]; then
