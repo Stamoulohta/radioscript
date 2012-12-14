@@ -69,6 +69,7 @@ if [ $# -lt 1 ]; then # If user doesn't provide a station, we will ask him to ch
     i=0
     while read line; do
         names[$i]=$(echo $line | cut -d' ' -f1)
+        let i++
     done < $stations
 
     PS3="Select station. " #PS3 is the prompt that select uses. We set it to something more relevant than "#?".

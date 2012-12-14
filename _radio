@@ -6,8 +6,9 @@ stations=$HOME/.stations    #          ---XXX---
 
 _radio()
 {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev
+    _init_completion || return                        # arch
+    # _get_comp_words_by_ref_ cur prev || return      # ubuntu
 
     case $prev in
         -h|--help)
@@ -21,8 +22,9 @@ _radio()
             return
             ;;
     esac
-
-    COMPREPLY=( $( compgen -W 'kill killall $(while read entry; do echo $entry | cut -d" " -f1; done < $stations)' -- "$cur" ) )
+    
+    kills='kill killall'
+    COMPREPLY=($( compgen -W '$kills $(while read entry; do echo $entry | cut -d" " -f1; done < $stations)' -- "$cur" ))
 } &&
 complete -F _radio radio
 
