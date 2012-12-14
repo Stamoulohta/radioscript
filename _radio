@@ -8,7 +8,7 @@ _radio()
 {
     local cur prev
     _init_completion || return                        # arch
-    # _get_comp_words_by_ref_ cur prev || return      # ubuntu
+    # _get_comp_words_by_ref cur prev || return      # ubuntu
 
     case $prev in
         -h|--help)
