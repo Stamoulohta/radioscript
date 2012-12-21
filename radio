@@ -100,7 +100,7 @@ done < $stations
 # We assert that we got a valid address from our list and if not we exit.
 if [[ -n $address ]]; then
     [ -e "$radiopid" ] && kill $(cat "$radiopid")  &> /dev/null # We kill previous instance if exists.
-    eval "vlc -I dummy --quiet $address 0<&- &> /dev/null &"
+    vlc -I dummy --quiet $address 0<&- &> /dev/null &
     echo $! > "$radiopid"
     exit 0
 else
