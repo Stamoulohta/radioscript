@@ -52,6 +52,7 @@ magicFm http://sc2.streamwithq.com:2199/tunein/magicfm.pls # Chania
 melodiaFm http://netradio.live24.gr/melodia # Athens
 melody http://stream2.proradio.gr:8004/melody.m3u # Heraklion
 metropolis http://streamx1.greekradios.gr:8000/listen.pls # Thessaloniki
+milkandchokolate http://ample-04.radiojar.com:80/milkchocolate #
 music http://mfile.akamai.com/6495/live/reflector:52713.asx?bkup=58044 # Athens
 nitroRadio http://nitro.live24.gr/nitro4555 # Athens
 noizeRadio http://188.227.194.35:7002/listen.pls # Serres
