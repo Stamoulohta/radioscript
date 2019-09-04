@@ -7,9 +7,8 @@ stations=/etc/stations.csv
 _radio()
 {
     local cur prev
-    _init_completion || return                   # arch
-    #|| _get_comp_words_by_ref cur prev  # debian
-    #|| return
+    _init_completion || return
+    #_get_comp_words_by_ref cur prev || return # Debian
 
     case $prev in
         -h|--help)
