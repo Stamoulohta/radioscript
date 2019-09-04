@@ -7,9 +7,9 @@ stations=/etc/stations.csv
 _radio()
 {
     local cur prev
-    _init_completion                    # arch
-    || _get_comp_words_by_ref cur prev  # debian
-    || return
+    _init_completion || return                   # arch
+    #|| _get_comp_words_by_ref cur prev  # debian
+    #|| return
 
     case $prev in
         -h|--help)
@@ -25,7 +25,7 @@ _radio()
     esac
 
     kills='kill killall'
-    COMPREPLY=($( compgen -W '$kills $(while read entry; do echo $entry | cut -d"," -f1; done < $stations)' -- "$cur" ))
+    COMPREPLY=($( compgen -W '$kills $(while read entry; do echo $entry | cut -d"," -f1; done < "$stations")' -- "$cur" ))
 } &&
 complete -F _radio radio
 

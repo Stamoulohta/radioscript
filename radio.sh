@@ -91,7 +91,7 @@ fi
 # We get the address for the requested station.
 while read line; do
     name=$(echo $line | cut -d',' -f1)
-    if [ $name == $station ]; then
+    if [ "$name" == "$station" ]; then
         address=$(echo $line | cut -d',' -f2)
         break
     fi

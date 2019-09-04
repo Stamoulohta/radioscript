@@ -1,0 +1,20 @@
+#! /usr/bin/env bash
+
+stations=stations.csv
+new=stations.csv.new
+
+while read line; do
+    station=$(echo "$line" | cut -d',' -f1)
+    #echo "$station"
+    if [ ! -z "$station" ]; then
+        echo "$station"
+        radio "$station"
+        read -sn1 -p 'Hear anything? (y/n)' answer </dev/tty
+        echo
+        if [ "$answer" == "y" ]; then
+            echo "$line" >> "$new"
+        fi
+    fi
+done < $stations
+
+sort -o "$new" "$new"
