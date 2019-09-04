@@ -1,14 +1,15 @@
 # ex: ts=4 sw=4 et filetype=sh
 #
-# radio completion  
+# radio completion
 
-stations=$HOME/.stations    #          ---XXX---
+stations=/etc/stations.csv
 
 _radio()
 {
     local cur prev
-    _init_completion || return                        # arch
-    # _get_comp_words_by_ref cur prev || return      # ubuntu
+    _init_completion                    # arch
+    || _get_comp_words_by_ref cur prev  # debian
+    || return
 
     case $prev in
         -h|--help)
@@ -22,9 +23,9 @@ _radio()
             return
             ;;
     esac
-    
+
     kills='kill killall'
-    COMPREPLY=($( compgen -W '$kills $(while read entry; do echo $entry | cut -d" " -f1; done < $stations)' -- "$cur" ))
+    COMPREPLY=($( compgen -W '$kills $(while read entry; do echo $entry | cut -d"," -f1; done < $stations)' -- "$cur" ))
 } &&
 complete -F _radio radio
 

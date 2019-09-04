@@ -31,9 +31,9 @@
 #
 #======================================================================================================================#
 
-tempdir="$HOME/temp" #                    ---XXX---
+tempdir="$HOME/temp"
 radiopid="$tempdir/radio.pid"
-stations="$HOME/.stations" #              ---XXX---
+stations="/etc/stations.csv"
 [[ ! -d $tempdir ]] && mkdir $tempdir
 
 # Killing the process without hassle!
@@ -49,7 +49,7 @@ if [ "$1" == "kill" ]; then
     else
         echo "Unable to retrieve pid. Please kill manually (or use \"killall\")." 1>&2
         exit 2
-    fi 
+    fi
 elif [ "$1" == "killall" ]; then
         e=0
     for pid in $(ps -eo pid,cmd | grep "vlc -I dummy" | grep -v "grep" | sed s'/^\s*//'g | cut -d' ' -f1); do
@@ -68,7 +68,7 @@ fi
 if [ $# -lt 1 ]; then # If user doesn't provide a station, we will ask him to choose.
     i=0
     while read line; do
-        names[$i]=$(echo $line | cut -d' ' -f1)
+        names[$i]=$(echo $line | cut -d',' -f1)
         let i++
     done < $stations
 
@@ -90,9 +90,9 @@ fi
 
 # We get the address for the requested station.
 while read line; do
-    name=$(echo $line | cut -d' ' -f1)
+    name=$(echo $line | cut -d',' -f1)
     if [ $name == $station ]; then
-        address=$(echo $line | cut -d' ' -f2)
+        address=$(echo $line | cut -d',' -f2)
         break
     fi
 done < $stations
@@ -104,7 +104,7 @@ if [[ -n $address ]]; then
     echo $! > "$radiopid"
     exit 0
 else
-    echo "Unknown station ($station). Please try again." 1>&2
+    echo "Unknown station \"$station\". Please try again." 1>&2
     exit 2
 fi
 
