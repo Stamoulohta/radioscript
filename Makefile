@@ -1,7 +1,5 @@
 CP = cp -u
-MD = mkdir -p
 RM = rm -f
-RD = rmdir --ignore-fail-on-non-empty
 
 BIN = /usr/bin
 ETC = /etc
