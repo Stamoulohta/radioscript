@@ -6,7 +6,7 @@ ETC = /etc
 BASHCOMPLETIONS = /usr/share/bash-completion/completions
 
 .PHONY: install
-install: radio.sh completion.bash stations.csv
+install: radio completion.bash stations.csv
 	$(CP) $< $(DESTDIR)$(BIN)/radio
 	$(CP) completion.bash $(DESTDIR)$(BASHCOMPLETIONS)/radio
 	$(CP) stations.csv $(DESTDIR)$(ETC)/stations.csv
